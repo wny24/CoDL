@@ -31,7 +31,7 @@ export function renderViewer(s, ui) {
   $('frame-empty').hidden = !!frame;
   $('frame-badge').hidden = !frame;
   if (frame) {
-    showFrame(frame.url, !ui.playing || displayedCamera !== ui.camera);
+    showFrame(frame.url, !ui.follow && (!ui.playing || displayedCamera !== ui.camera));
     displayedCamera = ui.camera;
     $('frame').alt = `${frame.camera} observation at ${new Date(frame.timestamp * 1000).toLocaleTimeString()}`;
     $('frame-badge').textContent = carried ? '↳ Holding previous frame' : frame.batch_id ? 'Linked tool output' : frame.association;
@@ -110,7 +110,9 @@ function showFrame(url, transitionEnabled) {
     } else previous.hidden = true;
     image.src = url;
     const transition = !previous.hidden && animate(previous, [{opacity:1}, {opacity:0}], 180);
-    const done = () => { if (requested === url) previous.hidden = true; };
+    // A newer request may still be loading. Retire the overlay for the image
+    // actually displayed, not for the most recently requested image.
+    const done = () => { if (image.getAttribute('src') === url) previous.hidden = true; };
     if (transition) transition.finished.then(done, () => {}); else done();
   };
   loader.onerror = () => {

@@ -153,6 +153,7 @@ for remote-host access and other options.
 | **LIBERO-Plus / PRO** | Official perturbation suites through separately prepared Direct services | [Integration](docs/libero-extensions.md) |
 | **RoboTwin 2.0** | ALOHA AgileX dual-arm tasks through a separately prepared Direct service | [Integration](docs/robotwin.md) |
 | **RMBench** | Native memory-dependent dual-arm tasks with four camera views | [Integration](docs/rmbench.md) |
+| **Cross-EEF / SAPIEN** | CanSortDual, LaptopCleanup, LiftTray and Handover with dual xArm7 + G2 grippers | [Integration](docs/crosseef.md) |
 | **CALVIN** | Native Panda single-task episodes; no five-task chain runner | [Integration](docs/calvin.md) |
 | **RoboLab** | Single-DROID tasks in a separately prepared Isaac Sim / Isaac Lab runtime | [Integration](https://github.com/Open-RUA/uni-robot-agent/blob/main/docs/robolab.md) |
 | **DexJoCo** | Dexterous-hand manipulation with a Panda arm and 16-DoF Allegro hand using Hybrid Pi0.5 control | [Integration](docs/dexjoco.md) |

@@ -83,6 +83,7 @@ namespaces = false
 "uni_robot_agent.resources" = ["prompts/**/*.md", "prompts/robodojo/task_requirements.json", "prompts/robodojo/instruction_supplements.json", "skills/**/*.md"]
 "uni_robot_agent.integrations.robolab" = ["SOURCE.md"]
 "uni_robot_agent.integrations.piper_x" = ["templates/*.json", "SOURCE.md", "README.md"]
+"uni_robot_agent.integrations.crosseef" = ["deployment.toml", "SOURCE.md"]
 "uni_robot_agent.integrations.dexjoco" = ["deployment.toml", "SOURCE.md"]
 "uni_robot_agent.integrations.behavior" = ["deployment.toml", "SOURCE.md"]
 "uni_robot_agent.integrations.isaaclab_arena" = ["deployment.toml", "SOURCE.md"]

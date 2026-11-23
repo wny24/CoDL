@@ -416,7 +416,21 @@ def _consume_main_turn(
         )
 
         if method == "turn/completed":
-            state["completed"] = True
+            completed_turn = _get(payload, "turn")
+            status = _get(completed_turn, "status", "completed")
+            status = getattr(status, "value", status)
+            failure = _get(completed_turn, "error")
+            if failure is not None or status == "failed":
+                message = _get(failure, "message") or "Codex turn failed without an error message"
+                if "UNI_ROBOT_AGENT_CODEX_KEY" in message:
+                    message += (
+                        " Set UNI_ROBOT_AGENT_API_KEY in the terminal launching "
+                        "uni-robot-agent (or pass AgentConfig.api_key in the SDK)."
+                    )
+                state["error"] = message
+                state["completed"] = False
+                return
+            state["completed"] = status == "completed"
             if state["pending_reasoning"]:
                 logger.warning(
                     "Codex turn completed with reasoning only; "

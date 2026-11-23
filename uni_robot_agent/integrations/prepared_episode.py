@@ -179,6 +179,12 @@ class PreparedEpisodeSession:
         env = EnvironmentClient(args.env_url, tracer=self.context.tracer)
         try:
             info = env.connect()
+            if info.lifecycle != "active":
+                raise ValueError(
+                    f"Episode {info.episode_id} is {info.lifecycle}; start a fresh environment "
+                    "episode before running an agent. For local deployment, stop the old "
+                    "deploy env process and rerun it, or use run --deploy local."
+                )
             if args.tool_profile == "clean" and any(camera.has_depth for camera in info.environment.cameras):
                 raise ValueError("clean supports calibrated RGB or RGB-only; start the environment service with depth disabled")
             args._episode_identity = info.model_dump(mode="json")
