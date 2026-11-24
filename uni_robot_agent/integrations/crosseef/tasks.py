@@ -4,7 +4,12 @@ from pathlib import Path
 ROBOT = 'xarm7_g2_gripper'
 TASKS = {
     'CanSortDual': ('BimanualCanSortDual', 'can_sort',
-        'Place the red can in the red bin and the blue can in the blue bin using the two arms.'),
+        'First use the right arm to grasp the red can around the middle of its body and '
+        'place it in the red bin on the left. Release it and confirm it is resting inside '
+        'the bin. Then use the left arm to grasp the blue can around the middle of its '
+        'body and place it in the blue bin on the right. Do not reverse this order or '
+        'manipulate both cans at the same time. Throughout the entire task, keep the line '
+        'connecting the two contact pads of each gripper horizontal.'),
     'LaptopCleanup': ('BimanualLaptopCleanup', 'laptop_cleanup',
         'Place the mouse on the laptop keyboard surface and close the laptop screen.'),
     'LiftTray': ('BimanualLiftTray', 'lift_tray',

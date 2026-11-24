@@ -46,7 +46,12 @@ class CrossEefAdapter:
             self.bounds[name] = tuple(np.asarray(x, dtype=float) for x in agent.get_physical_action_bounds())
             self.openings[name] = self._opening(name)
             arms.append(ArmDescription(name=name, control_frame='world', rotation_radius_m=.18,
-                grasp_site_description='xArm7 G2 link_tcp, 0.172 m along gripper base +Z; wxyz orientation. Opening 0 closed, 1 open.',
+                grasp_site_description=('xArm7 G2 link_tcp, 0.172 m along gripper base +Z, with identical axes; '
+                    'wxyz orientation. Local Y is the pad-to-pad/closing axis (not X); local +Z points '
+                    'from the gripper base toward the fingers. For symmetric finger motion, the pad-center '
+                    'line is parallel to TCP Y at every opening. If R maps TCP vectors into world, '
+                    'pad_line_world = R @ [0,1,0]; horizontal means its world Z component is approximately '
+                    'zero. Opening 0 closed, 1 open. TCP is a fixed reference, not a measured pad midpoint.'),
                 joint_names=[robot.get_active_joints()[i].name for i in indices[:7]],
                 control=ArmControlCapabilities(commands=['pose'])))
         if not cameras or len(set(cameras)) != len(cameras) or set(cameras) - {'front', 'top'}:

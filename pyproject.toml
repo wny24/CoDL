@@ -38,6 +38,8 @@ Documentation = "https://uni-robot-agent.com/docs"
 Homepage = "https://uni-robot-agent.com/"
 
 [project.optional-dependencies]
+# Optional local geometry/image calculations used by planner shell tools.
+compute = ["scipy>=1.10"]
 antigravity = ["google-antigravity==0.1.23"]
 benchmarks = ["scipy>=1.10", "PyYAML>=6,<7"]
 xpolicylab = ["websockets>=14,<18", "msgpack>=1,<2", "msgpack-numpy==0.4.8"]

@@ -152,7 +152,21 @@ class SceneTools(ToolProvider):
             "Scene operation labels (not fixed callable names): " + ", ".join(spec.name for spec in specs) + ". "
             + (f"Available locate methods: {method_description}. " if methods else "Feature localization is unavailable. ")
             + "See the tool schema for arguments and result fields. "
-            "Snapshots are immutable historical measurements, not promises that objects remain in those locations."
+            "Snapshots are immutable historical measurements, not promises that objects remain in those locations. "
+            "Attached images are ready for visual inspection. For local image calculations, use the exact "
+            "camera_calibration[camera].image_path (Clean: observation.cameras[camera].image_path). "
+            "observation_path is a snapshot manifest, not an image directory; never construct an image filename "
+            "from snapshot IDs, hashes or resource paths. "
+            + ("For visible features, use locate(method=pixels) with this snapshot_id and 1-4 [row,col] points per call "
+               "to obtain depth-backed world coordinates before writing custom projection or segmentation code. "
+               "Keep each call on one identified feature; batch separate calls for independent features. "
+               "Inspect the numbered overlay: valid depth can still sample the table instead of the object. "
+               if "pixels" in methods else "")
+            + "Use local calculations only to resolve a specific missing geometric fact; do not repeatedly "
+            "reconstruct information already returned by observation tools. Before another query or script, "
+            "identify the unresolved fact and how its result changes the next action. Stop measuring when "
+            "that action's target and clearance are established; reuse unchanged evidence. If a query does "
+            "not resolve the fact, change the evidence source or report the blocker instead of repeating it."
         ), source="tools/scene"),)
 
     def get_tools(self):

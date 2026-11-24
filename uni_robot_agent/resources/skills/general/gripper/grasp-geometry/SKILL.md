@@ -111,11 +111,22 @@ completed feedback, then approach and verify before closing. `move` adds no
 pre-grasp offset. Its position/orientation errors remain available for each
 arm; pose arrival alone does not prove contact or attachment.
 
-When contact height, finger clearance or pad overlap is uncertain, read
-`general/gripper/grasp-geometry/references/contact-calculation.md`. Use file/code
-tools to compute from the published hand geometry and valid 3D locate points
-(from exposed pixels or triangulate methods, not a 2D-only segment);
-print the candidate pose, gap, clearance and uncertainty before selecting it.
+Resolve geometry for the next physical phase, not every future phase at once.
+A clear free-space approach can precede precise contact selection when its target
+and swept-path clearance are already established. Inspect its achieved pose and
+returned images before deciding the contact approach. This does not authorize
+descent or closure through uncertain clearance.
+
+When contact height, finger clearance or pad overlap blocks the contact phase,
+identify the specific missing measurement. Read
+`general/gripper/grasp-geometry/references/contact-calculation.md` only when the
+environment publishes the hand.contact_geometry and metric gap inputs it requires.
+Then compute the candidate from that calibration and valid 3D observations.
+The numerical helper is optional, not a universal prerequisite for motion.
+Without those capabilities, use the declared opening units, visible finger access
+and measured poses; do not reverse-engineer a missing calibration from URDFs or
+treat a normalized opening as a metric gap. If adequate contact clearance still
+cannot be established, report that specific blocker.
 Do not infer unseen thickness or invent a fixed grasp-height correction.
 Opening can change during move. If material must fit between the fingers before
 entry, open in the clear pregrasp segment and inspect opening_reached before

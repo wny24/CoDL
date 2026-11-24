@@ -128,3 +128,45 @@ python -m uni_robot_agent.integrations.crosseef.server \
 ```bash
 uni-robot-agent monitor --run-dir /path/to/run-directory
 ```
+
+## 配套的 Agent 计算环境与启动脚本
+
+Agent 的本地 Python 计算与 SAPIEN 服务是两个环境。前者需要 NumPy、Pillow 和 SciPy；不能因为仿真环境安装了 SciPy，就认为 Agent 也能导入它。本项目新增 `compute` 可选依赖，可在 CoDL 工作目录中安装：
+
+```bash
+uv pip install --python .venv/bin/python -e './uni-robot-agent[compute]'
+```
+
+本机主环境已补齐 SciPy。配置好当前终端的 `UNI_ROBOT_AGENT_API_KEY` 后，可以使用配套脚本：
+
+```bash
+cd /home/wny24/CoDL
+source .venv/bin/activate
+bash uni-robot-agent/examples/crosseef_direct.sh
+```
+
+脚本默认创建新的 `CanSortDual` 回合，使用 18792 端口、Qwen3.8-Flash、北京地域百炼接口和 `high` 推理强度。它会先检查计算依赖，并通过 `--agent-python` 固定 Agent 的 Python；不会自动安装依赖。可通过 `TASK`、`ENV_PORT`、`MODEL`、`PROVIDER_PROFILE`、`UNI_ROBOT_AGENT_PROVIDER_URL`、`REASONING_EFFORT` 等环境变量覆盖默认设置。这里的 `high` 是启动脚本的配置，不是经过本任务成功率比较得出的最优值。
+
+```bash
+TASK=LiftTray ENV_PORT=18793 bash uni-robot-agent/examples/crosseef_direct.sh
+```
+
+直接使用 `uni-robot-agent run` 时，可添加 `--agent-python "$PWD/.venv/bin/python"`，获得相同的解释器选择行为。
+
+观测工具现在明确要求使用返回的 `image_path`，不自行拼接图片路径；有深度时优先利用已有像素定位接口。新增的 `crosseef/SKILL.md` 说明双 xArm7/G2 的 TCP、姿态、开合与反馈约定，不包含任务答案或物体真值。
+
+动作结果新增 `action_complete`：它表示该动作是否按请求完成，不代表任务成功。`call_ok=true`（原始日志中的 `success=true`）只表示调用正常返回。移动未到达目标、跟踪停滞或夹爪张开未到位时，应检查具体反馈再决定后续动作；抓取是否成功仍需物体随动等观测证据。
+## 避免规划停留在反复计算
+
+Direct 的提示词和抓取 skill 按阶段要求证据：先确认下一段自由空间移动的
+目标和机械臂、夹爪经过路径的间隙，再执行并检查反馈；接触、闭合和搬运分别
+检查各自所需的证据。完整目标物体重建、最终放置位置的精确测量，不是每次
+预抓取移动的前置条件。缺少安全间隙证据时仍须补测或明确报告阻塞原因。
+
+启用深度时，`locate(method="pixels")` 每次接受 1–4 个 `[row, col]` 点，
+不同特征分开调用。应检查标记图，避免把桌面的有效深度当成物体位置。
+当前 G2 接口提供归一化开合量，没有通用 contact-calculation 辅助脚本要求的
+`hand.contact_geometry` 和米制指间距标定；该脚本不是启动或移动的必经步骤。
+
+这些行为提示在新建 agent 会话时加载。已有会话不会热更新；提示词调整也不
+保证模型一定完成任务，应通过新日志中的首次 `move`、执行反馈和最终物体状态验证。

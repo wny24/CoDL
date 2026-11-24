@@ -123,7 +123,19 @@ class GripperTools(ToolProvider):
             "Gripper operation labels (not fixed callable names): " + ", ".join(names) + ". "
             "Tool schemas define parameters, defaults, limits and returned evidence. "
             "Read each arm's control_frame and grasp_site_description in the environment description. "
+            "Plan one physical phase at a time: clear approach, contact, then retention verification. "
+            "Once the next phase's target and swept-path clearance are grounded, execute that bounded phase "
+            "and inspect its feedback. Exact contact geometry and destination measurements are not prerequisites "
+            "for an otherwise justified free-space approach. If clearance is unresolved, obtain the specific "
+            "missing evidence or report the blocker; do not move merely to make progress. "
+            "When control.pose_solver is native, submit Cartesian targets through move; do not reconstruct "
+            "robot IK in shell scripts. "
             "call_ok reports call validity, not motion or object success. "
+            "action_complete reports whether this action finished as requested, not task success or object attachment. "
+            "Before a dependent grasp or placement, check feedback.pose_reached and measured pose errors. "
+            "If arrival is false, do not treat the requested pose as the actual pose. A max_steps stop with "
+            "progress permits a bounded continuation after checking clearance; stalled/diverging requires "
+            "inspection and a changed approach, not blind retries. "
             "Direct feedback reports the whole call: steps_executed counts accepted control commands; executed_native_steps counts environment steps. "
             "Read state.native_steps, state.ended and remaining_steps for episode progress. "
             "Environment state uses arms[arm].control_pose, joints, gripper (normalized measured opening) and gripper_command (complete normalized drive intent, retained across accepted actions). "
@@ -216,12 +228,14 @@ class GripperTools(ToolProvider):
         except Exception as error:  # noqa: BLE001 - image transport must not replay acknowledged physical work.
             images = []
             image_error = f"{type(error).__name__}: {error}"
-        return ToolOutput(extra={"state": state_for_model(self.episode.state.model_dump(mode="json")),
+        outcome = self.action_outcome(reply.feedback, facts=facts)
+        return ToolOutput(extra={"action_complete": outcome.complete,
+            "state": state_for_model(self.episode.state.model_dump(mode="json")),
             "remaining_steps": self.episode.remaining_steps, "feedback": round_physical(reply.feedback),
             **({"artifact_error": error} if (error := reply.artifact_error or image_error) else {}),
             "snapshot_id": None if snapshot is None else snapshot["snapshot_id"],
             **image_metadata, "image_cameras": [image.name for image in images]}, images=images,
-            action=self.action_outcome(reply.feedback, facts=facts))
+            action=outcome)
 
     def _run_motion_program(self, request, method, *, cameras=None, opening_feedback=None):
         """Run a model-level action by composing primitive service requests.
